@@ -14,110 +14,112 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- -----------------------------------------------------
 -- Schema mydb
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
-USE `mydb` ;
+CREATE SCHEMA IF NOT EXISTS mydb DEFAULT CHARACTER SET utf8 ;
+USE mydb ;
 
 -- -----------------------------------------------------
--- Table `mydb`.`Laboratorio`
+-- Table mydb.Laboratorio
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Laboratorio` (
-  `cod_laboratorio` INT NOT NULL,
-  `nombre_laboratorio` VARCHAR(45) NULL,
-  `tlf_laboratorio` INT(9) NULL,
-  `contacto_laboratorio` VARCHAR(45) NULL,
-  `dir_laboratorio` VARCHAR(45) NULL,
-  `fax_laboratorio` INT(9) NULL,
-  PRIMARY KEY (`cod_laboratorio`))
+CREATE TABLE IF NOT EXISTS mydb.Laboratorio (
+  cod_laboratorio INT NOT NULL,
+  nombre_laboratorio VARCHAR(45) NULL,
+  tlf_laboratorio INT NULL,
+  contacto_laboratorio VARCHAR(45) NULL,
+  dir_laboratorio VARCHAR(45) NULL,
+  fax_laboratorio INT NULL,
+  PRIMARY KEY (cod_laboratorio))
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Medicamento`
+-- Table mydb.Medicamento
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Medicamento` (
-  `cod_medicamento` INT NOT NULL,
-  `cod_laboratorio` INT NOT NULL,
-  `nombre_medicamento` VARCHAR(45) NULL,
-  `precio_medicamento` INT NULL,
-  `stock` INT NULL,
-  `ventas_medicamento` INT NULL,
-  `receta` TINYINT(1) NULL,
-  `Tipo` VARCHAR(45) NULL,
-  PRIMARY KEY (`cod_medicamento`, `cod_laboratorio`),
-  INDEX `fk_Medicamento_1_idx` (`cod_laboratorio` ASC),
-  CONSTRAINT `fk_Medicamento_1`
-    FOREIGN KEY (`cod_laboratorio`)
-    REFERENCES `mydb`.`Laboratorio` (`cod_laboratorio`)
+CREATE TABLE IF NOT EXISTS mydb.Medicamento (
+  cod_medicamento INT NOT NULL,
+  cod_laboratorio INT NOT NULL,
+  nombre_medicamento VARCHAR(45) NULL,
+  precio_medicamento INT NULL,
+  stock INT NULL,
+  ventas_medicamento INT NULL,
+  receta SMALLINT NULL,
+  Tipo VARCHAR(45) NULL,
+  PRIMARY KEY (cod_medicamento, cod_laboratorio),
+  INDEX fk_Medicamento_1_idx (cod_laboratorio ASC),
+  UNIQUE INDEX fk_Medicamento_unq_idx (cod_medicamento ASC),
+  CONSTRAINT fk_Medicamento_1
+    FOREIGN KEY (cod_laboratorio)
+    REFERENCES mydb.Laboratorio (cod_laboratorio)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Familia`
+-- Table mydb.Familia
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Familia` (
-  `nombre_familia` VARCHAR(45) NOT NULL,
-  `cod_medicamento` INT NOT NULL,
-  PRIMARY KEY (`nombre_familia`, `cod_medicamento`),
-  INDEX `fk_cod_med_idx` (`cod_medicamento` ASC),
-  CONSTRAINT `fk_cod_med`
-    FOREIGN KEY (`cod_medicamento`)
-    REFERENCES `mydb`.`Medicamento` (`cod_medicamento`)
+CREATE TABLE IF NOT EXISTS mydb.Familia (
+  nombre_familia VARCHAR(45) NOT NULL,
+  cod_medicamento INT NOT NULL,
+  PRIMARY KEY (nombre_familia, cod_medicamento),
+  INDEX fk_cod_med_idx (cod_medicamento ASC),
+  CONSTRAINT fk_cod_med
+    FOREIGN KEY (cod_medicamento)
+    REFERENCES mydb.Medicamento (cod_medicamento)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Compra`
+-- Table mydb.Compra
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Compra` (
-  `cod_factura` INT NOT NULL,
-  `cod_medicamento` INT NOT NULL,
-  `instante_compra` DATETIME NULL,
-  PRIMARY KEY (`cod_factura`, `cod_medicamento`),
-  INDEX `fk_cod_med2_idx` (`cod_medicamento` ASC),
-  CONSTRAINT `fk_cod_med2`
-    FOREIGN KEY (`cod_medicamento`)
-    REFERENCES `mydb`.`Medicamento` (`cod_medicamento`)
+CREATE TABLE IF NOT EXISTS mydb.Compra (
+  cod_factura INT NOT NULL,
+  cod_medicamento INT NOT NULL,
+  instante_compra TIMESTAMP NULL,
+  PRIMARY KEY (cod_factura, cod_medicamento),
+  INDEX fk_cod_med2_idx (cod_medicamento ASC),
+  UNIQUE INDEX fk_cod_fact_unq_idx (cod_factura ASC),
+  CONSTRAINT fk_cod_med2
+    FOREIGN KEY (cod_medicamento)
+    REFERENCES mydb.Medicamento (cod_medicamento)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Compra_Cliente_Credito`
+-- Table mydb.Compra_Cliente_Credito
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Compra_Cliente_Credito` (
-  `dni` VARCHAR(9) NOT NULL,
-  `cod_factura` INT NOT NULL,
-  `nombre_cliente` VARCHAR(45) NULL,
-  `tlf_cliente` INT(9) NULL,
-  `datos_bancarios` VARCHAR(45) NULL,
-  `fecha_cobro` DATE NULL,
-  `total_gastado` INT NULL,
-  PRIMARY KEY (`dni`, `cod_factura`),
-  INDEX `fk_Compra_Cliente_Credito_1_idx` (`cod_factura` ASC),
-  CONSTRAINT `fk_Compra_Cliente_Credito_1`
-    FOREIGN KEY (`cod_factura`)
-    REFERENCES `mydb`.`Compra` (`cod_factura`)
+CREATE TABLE IF NOT EXISTS mydb.Compra_Cliente_Credito (
+  dni VARCHAR(9) NOT NULL,
+  cod_factura INT NOT NULL,
+  nombre_cliente VARCHAR(45) NULL,
+  tlf_cliente INT NULL,
+  datos_bancarios VARCHAR(45) NULL,
+  fecha_cobro DATE NULL,
+  total_gastado INT NULL,
+  PRIMARY KEY (dni, cod_factura),
+  INDEX fk_Compra_Cliente_Credito_1_idx (cod_factura ASC),
+  CONSTRAINT fk_Compra_Cliente_Credito_1
+    FOREIGN KEY (cod_factura)
+    REFERENCES mydb.Compra (cod_factura)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Factura`
+-- Table mydb.Factura
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Factura` (
-  `cod_factura` INT NOT NULL,
-  `cod_medicamento` INT NOT NULL,
-  `cantidad_comprada` INT NULL,
-  PRIMARY KEY (`cod_factura`, `cod_medicamento`),
-  CONSTRAINT `fk_Factura_1`
-    FOREIGN KEY (`cod_factura`)
-    REFERENCES `mydb`.`Compra` (`cod_factura`)
+CREATE TABLE IF NOT EXISTS mydb.Factura (
+  cod_factura INT NOT NULL,
+  cod_medicamento INT NOT NULL,
+  cantidad_comprada INT NULL,
+  PRIMARY KEY (cod_factura, cod_medicamento),
+  CONSTRAINT fk_Factura_1
+    FOREIGN KEY (cod_factura)
+    REFERENCES mydb.Compra (cod_factura)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
